@@ -63,18 +63,18 @@ async def main() -> None:
     )
 
     async with AzureCliCredential() as credential:
-        async with FoundryChatClient(
+        client = FoundryChatClient(
             project_endpoint=project_endpoint,
             model=model,
             credential=credential,
-        ) as client:
-            async with client.as_agent(
-                name=AGENT_NAME,
-                instructions=AGENT_INSTRUCTIONS,
-                tools=[mrc],
-            ) as agent:
-                response = await agent.run(user_input)
-                print(response.text)
+        )
+        async with client.as_agent(
+            name=AGENT_NAME,
+            instructions=AGENT_INSTRUCTIONS,
+            tools=[mrc],
+        ) as agent:
+            response = await agent.run(user_input)
+            print(response.text)
 
 
 if __name__ == "__main__":

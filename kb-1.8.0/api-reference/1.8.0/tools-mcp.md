@@ -4,6 +4,27 @@
 > Pinned: `agent-framework-foundry==1.8.0`
 > Verified against: introspection + parent demos `src/demo3_hosted_mcp.py` (stdio), `src/demo7_toolbox.py` (streamable HTTP)
 
+> [!IMPORTANT]
+> **Required runtime dependency**: All three MCP tool classes (`MCPStdioTool`,
+> `MCPStreamableHTTPTool`, `MCPWebsocketTool`) **require the `mcp` Python package**
+> at runtime. It is an **optional extra** of `agent-framework-core` (only included
+> with `agent-framework-core[all]`). The class import itself succeeds (no `mcp`
+> needed), but the lazy import inside `connect()` will raise
+> `ModuleNotFoundError: \`MCPStreamableHTTPTool\` requires \`mcp\`. Please install \`mcp\`.`
+> at first tool call.
+>
+> **Install before runtime**:
+> ```bash
+> pip install mcp        # minimum requirement (any MCP tool)
+> # or for full optional surface:
+> pip install "agent-framework-core[all]"
+> ```
+>
+> **Verification recipe** (catch this at implementation time, not at runtime):
+> ```bash
+> python -c "from mcp.client.streamable_http import streamable_http_client; print('ok')"
+> ```
+
 MCP (Model Context Protocol) is an open protocol for connecting LLM agents to tool servers. Agent Framework ships three transports:
 
 | Class | Transport | Use when |
