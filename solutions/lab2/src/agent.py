@@ -12,7 +12,7 @@ import sys
 from dotenv import load_dotenv
 from agent_framework import Agent, MCPStreamableHTTPTool
 from agent_framework.foundry import FoundryChatClient
-from azure.identity import AzureCliCredential
+from azure.identity.aio import AzureCliCredential
 
 load_dotenv()
 
@@ -56,22 +56,24 @@ async def run_interactive(agent: Agent) -> None:
 
 
 async def main() -> None:
-    async with MCPStreamableHTTPTool(name="MRC", url=MRC_URL) as mrc_mcp:
-        agent = Agent(
-            client=FoundryChatClient(
-                project_endpoint=os.environ["FOUNDRY_PROJECT_ENDPOINT"],
-                model=os.environ["FOUNDRY_MODEL"],
-                credential=AzureCliCredential(),
-            ),
+    mrc_mcp = MCPStreamableHTTPTool(name="MRC", url=MRC_URL)
+
+    # canonical pattern: credential は async with、client は代入、agent は async with で閉じる
+    async with AzureCliCredential() as credential:
+        client = FoundryChatClient(
+            project_endpoint=os.environ["FOUNDRY_PROJECT_ENDPOINT"],
+            model=os.environ["FOUNDRY_MODEL"],
+            credential=credential,
+        )
+        async with client.as_agent(
             name="MSUpdatesAgent",
             instructions=INSTRUCTIONS,
             tools=[mrc_mcp],
-        )
-
-        if len(sys.argv) > 1:
-            await run_once(agent, sys.argv[1])
-        else:
-            await run_interactive(agent)
+        ) as agent:
+            if len(sys.argv) > 1:
+                await run_once(agent, sys.argv[1])
+            else:
+                await run_interactive(agent)
 
 
 if __name__ == "__main__":

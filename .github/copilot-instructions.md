@@ -37,7 +37,7 @@
 | モデル | **`gpt-4.1-mini`** (deployment name も同じ) | Lab 0-4 でデプロイ |
 | SKU | `GlobalStandard` | 既定で十分 |
 | azd 拡張 | **`microsoft.foundry`** | 旧 `azure.ai.agents` は非推奨 |
-| RBAC ロール | **`Foundry Project Manager`** (`eadc314b-6967-41eb-b9ec-2c8f0d3cd3a5`) | 自分の Entra ID に Lab 0 で割当 |
+| RBAC ロール | **`Foundry Project Manager`** (`eadc314b-1a2d-4efa-be10-5d325db5065e`) | 自分の Entra ID に Lab 0 で割当 |
 
 > [!WARNING]
 > 既定リージョン・モデル・ロールを **勝手に書き換えない**。`eastus` や `gpt-4o` 等を提案すると Lab 3 でデプロイが落ちます。
@@ -57,7 +57,7 @@ ENABLE_SENSITIVE_DATA=false
 ```
 
 > [!IMPORTANT]
-> - 旧 `AZURE_AI_MODEL_DEPLOYMENT_NAME` は Hosted Agent コンテナへの注入名としては残るが、**アプリ コードからは `FOUNDRY_MODEL` を読む**。両方混在させない。
+> - モデル名は **`os.environ.get("FOUNDRY_MODEL") or os.environ["AZURE_AI_MODEL_DEPLOYMENT_NAME"]`** のようにフォールバック付きで読む。ローカル実行は `.env` の `FOUNDRY_MODEL`、`azd up` でデプロイした Hosted Agent コンテナは Foundry が注入する `AZURE_AI_MODEL_DEPLOYMENT_NAME` を使うため。`os.environ["FOUNDRY_MODEL"]` 単独だと **デプロイ後のコンテナ起動時に `KeyError` で落ちる**。
 > - `.env` は **自動ロードされない**。Python スクリプト先頭で必ず `from dotenv import load_dotenv; load_dotenv()` を呼ぶ。
 > - `ENABLE_SENSITIVE_DATA=true` は本番禁止 (プロンプト / 応答が App Insights に記録される)。
 

@@ -12,9 +12,9 @@ from pathlib import Path
 from dotenv import load_dotenv
 from pydantic import BaseModel, Field, ValidationError
 
-from agent_framework import Agent, MCPStreamableHTTPTool
+from agent_framework import MCPStreamableHTTPTool
 from agent_framework.foundry import FoundryChatClient
-from azure.identity import AzureCliCredential
+from azure.identity.aio import AzureCliCredential
 
 load_dotenv()
 
@@ -41,38 +41,39 @@ class ReleaseReport(BaseModel):
 
 
 async def main() -> None:
-    async with MCPStreamableHTTPTool(name="MRC", url=MRC_URL) as mrc_mcp:
-        agent = Agent(
-            client=FoundryChatClient(
-                project_endpoint=os.environ["FOUNDRY_PROJECT_ENDPOINT"],
-                model=os.environ["FOUNDRY_MODEL"],
-                credential=AzureCliCredential(),
-            ),
+    mrc_mcp = MCPStreamableHTTPTool(name="MRC", url=MRC_URL)
+
+    async with AzureCliCredential() as credential:
+        client = FoundryChatClient(
+            project_endpoint=os.environ["FOUNDRY_PROJECT_ENDPOINT"],
+            model=os.environ["FOUNDRY_MODEL"],
+            credential=credential,
+        )
+        async with client.as_agent(
             name="MSUpdatesReporter",
             instructions=INSTRUCTIONS,
             tools=[mrc_mcp],
-        )
+        ) as agent:
+            response = await agent.run(
+                "直近 GA になった主要な Microsoft 365 / Azure 更新を 5 件、構造化して返してください。",
+                options={"response_format": ReleaseReport},
+            )
 
-        response = await agent.run(
-            "直近 GA になった主要な Microsoft 365 / Azure 更新を 5 件、構造化して返してください。",
-            options={"response_format": ReleaseReport},
-        )
+            try:
+                report = response.value
+            except ValidationError as err:
+                print("構造化応答の parse に失敗しました:", err, file=sys.stderr)
+                print("--- 生レスポンス ---", file=sys.stderr)
+                print(response.text, file=sys.stderr)
+                sys.exit(1)
 
-        try:
-            report = response.value
-        except ValidationError as err:
-            print("構造化応答の parse に失敗しました:", err, file=sys.stderr)
-            print("--- 生レスポンス ---", file=sys.stderr)
-            print(response.text, file=sys.stderr)
-            sys.exit(1)
-
-        out_dir = Path("data")
-        out_dir.mkdir(parents=True, exist_ok=True)
-        stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-        out_path = out_dir / f"report_{stamp}.json"
-        out_path.write_text(report.model_dump_json(indent=2), encoding="utf-8")
-        print(f"Saved: {out_path}")
-        print(f"  period={report.period}  items={len(report.items)}")
+            out_dir = Path("data")
+            out_dir.mkdir(parents=True, exist_ok=True)
+            stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+            out_path = out_dir / f"report_{stamp}.json"
+            out_path.write_text(report.model_dump_json(indent=2), encoding="utf-8")
+            print(f"Saved: {out_path}")
+            print(f"  period={report.period}  items={len(report.items)}")
 
 
 if __name__ == "__main__":

@@ -38,16 +38,17 @@ MCP エンドポイント：`https://www.microsoft.com/releasecommunications/mcp
 
 ## Lab 一覧
 
-| Lab | 内容 | 想定時間 |
-|-----|-----|---|
-| Lab 0 | [環境セットアップ（リポジトリ fork + Foundry プロジェクト + gpt-4.1-mini デプロイ）](00-setup.md) | 30 分 |
-| Lab 1 | [Agent Skills の作成と Copilot での利用](01-agent-skills.md) | 20 分 |
-| Lab 2 | [MAF で Microsoft 最新情報エージェント作成](02-maf-agent.md)（Copilot に作らせる） | 40 分 |
-| Lab 3 | [Hosted Agent を Foundry へデプロイ](03-foundry-deploy.md) | 40 分 |
-| Lab 4 | [トレース確認と Cloud Evaluation](04-trace-evaluation.md) | 30 分 |
-| Lab 5 | [GitHub Actions で CI/CD 化（完成版 YAML をコピペ + Microsoft Learn MCP 追加 PR）](05-cicd.md) | 30 分 |
+| Lab | 内容 |
+|-----|-----|
+| Lab 0 | [環境セットアップ（リポジトリ fork + Foundry プロジェクト + gpt-4.1-mini デプロイ）](00-setup.md) |
+| Lab 1 | [Agent Skills の作成と Copilot での利用](01-agent-skills.md) |
+| Lab 2 | [MAF で Microsoft 最新情報エージェント作成](02-maf-agent.md)（Copilot に作らせる） |
+| Lab 3 | [Hosted Agent を Foundry へデプロイ](03-foundry-deploy.md) |
+| Lab 4 | [トレース確認と Cloud Evaluation](04-trace-evaluation.md) |
+| Lab 5（オプション） | [GitHub Actions で CI/CD 化（完成版 YAML をコピペ + Microsoft Learn MCP 追加 PR）](05-cicd.md) |
 
 > 各 Lab の冒頭に **「この Lab で作るもの」** を明記しています。
+> **Lab 5 はオプション** です。時間や興味に応じて取り組んでください（スキップしても Lab 0〜4 で主要な学習ゴールは達成できます）。
 > 時間や進捗の都合で短縮したい場合は **★Stretch** マークの章をスキップしてください。
 
 ## 前提ツール

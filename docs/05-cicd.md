@@ -1,4 +1,6 @@
-# Lab 5: GitHub Actions for CI/CD
+# Lab 5（オプション）: GitHub Actions for CI/CD
+
+> **この Lab はオプションです。** CI/CD に興味がある場合に取り組んでください。スキップしても Lab 0〜4 でワークショップの主要な学習ゴールは達成できます。
 
 ## この Lab で行うこと
 

@@ -26,7 +26,10 @@ MRC_URL = "https://www.microsoft.com/releasecommunications/mcp"
 def main() -> None:
     client = FoundryChatClient(
         project_endpoint=os.environ["FOUNDRY_PROJECT_ENDPOINT"],
-        model=os.environ["FOUNDRY_MODEL"],
+        # ローカル実行は .env の FOUNDRY_MODEL を使う。デプロイ後の Hosted Agent コンテナには
+        # FOUNDRY_MODEL は注入されないため、Foundry が注入する AZURE_AI_MODEL_DEPLOYMENT_NAME に
+        # フォールバックする (どちらか一方は必ず設定される)。
+        model=os.environ.get("FOUNDRY_MODEL") or os.environ["AZURE_AI_MODEL_DEPLOYMENT_NAME"],
         credential=DefaultAzureCredential(),
     )
 
