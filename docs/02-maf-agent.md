@@ -23,43 +23,34 @@
 
 ## 2-0. この Lab で使う chatmode (推奨ワークフロー)
 
-この Lab では **3 種類のカスタム chatmode** をフェーズごとに切り替えて使います。default の Agent mode のままだと KB (`kb-1.8.0/`) の体系的な読み込みが保証されず、1.8.x で deprecated になった API (例: `async with FoundryChatClient(...)`) を生成してしまうリスクがあります。chatmode を切り替えることで「設計 → 実装 → レビュー」の hand-off が機械的に進みます。
+この Lab では **2 種類のカスタム chatmode** をフェーズごとに切り替えて使います。default の Agent mode のままだと KB (`kb-1.8.0/`) の体系的な読み込みが保証されず、1.8.x で deprecated になった API (例: `async with FoundryChatClient(...)`) を生成してしまうリスクがあります。chatmode を切り替えることで「設計 → 実装」の hand-off が機械的に進みます。
 
 ```mermaid
 flowchart LR
     U([👤 あなたの要件]) --> A
     A["🏛 af-architect<br/>(設計)"]:::arch -->|design brief| I
-    I["⚙️ af-implementer<br/>(実装)"]:::impl -->|code diff| R
-    R["🔍 af-reviewer<br/>(レビュー)"]:::rev -->|severity report| OK([✅ 完成])
-    R -.->|fix needed| I
-    A -.->|env blocker| O["🛠 foundry-ops<br/>(環境)"]:::ops
-    I -.->|env blocker| O
+    I["⚙️ af-implementer<br/>(実装)"]:::impl --> OK([✅ 完成])
     classDef arch fill:#e3f2fd,stroke:#1565c0
     classDef impl fill:#e8f5e9,stroke:#2e7d32
-    classDef rev fill:#fff3e0,stroke:#ef6c00
-    classDef ops fill:#fce4ec,stroke:#ad1457
 ```
 
 | Chatmode | この Lab での役割 | 使用 section |
 |---|---|---|
 | **`af-architect`** | 要件を 7-section の design brief (パターン選択・anti-pattern flag・risk register・open question) に変換。コードは書かない。 | 2-1 (Step 1) |
 | **`af-implementer`** | design brief を元に canonical pattern (`client = FoundryChatClient(...)` → `async with client.as_agent(...)`) で最小 diff のコードを生成。 | 2-1 (Step 2) / 2-3 / 2-4 / 2-5 |
-| **`af-reviewer`** | 完成コードに対し 13 種の anti-pattern を mechanically walk し severity 表で報告。 | まとめ (オプション) |
-| **`foundry-ops`** | RBAC / DNS / model deploy 等の Foundry 環境問題が出たときに escalate。 | (Lab 2 では基本不要 — Lab 3 以降で活用) |
 
 ### chatmode の切り替え方
 
 VS Code Insiders の Copilot Chat パネルで：
 
 1. **チャット入力欄の下部にある chatmode picker** (デフォルトは「Agent」と表示) をクリック
-2. リストから `af-architect` / `af-implementer` / `af-reviewer` のいずれかを選択
+2. リストから `af-architect` / `af-implementer` のいずれかを選択
 3. プロンプトを入力して送信
 
 > [!TIP]
 > 切り替え後はパネル左上の chatmode 名で現在のモードを確認できます。要件の性質に応じて以下の使い分けが目安です：
 > - **要件が曖昧 / パターン選択に迷う** → まず `af-architect` に design brief を出してもらう
 > - **やることが明確 / 既存コードの拡張** → `af-implementer` を直接呼ぶ
-> - **コードが完成した直後** → `af-reviewer` で anti-pattern scan
 
 ---
 
@@ -94,7 +85,7 @@ design brief を出してください。
 | **Tool inventory** | `MCPStreamableHTTPTool` (`kb-1.8.0/api-reference/1.8.0/tools-mcp.md`) を選択、stability tier は Stable |
 | **Risk register** | mcp パッケージ optional extra (F14) / B1 regression リスク (F12) / model deployment 名不一致 |
 | **Open questions** | session 継続が必要か / streaming 出力が必要か / 出典 URL の format |
-| **Hand-off** | → `af-implementer` (環境問題が出たら `foundry-ops`) |
+| **Hand-off** | → `af-implementer` |
 
 ### Step 2 — `af-implementer` でコードを生成する
 
@@ -314,9 +305,6 @@ instructions に「MCP で取得した一次情報に加えて、補足や関連
 Web 検索を使ってよい」と追記してください。
 ```
 
-> [!TIP]
-> Web 検索を初めて使う場合、Foundry プロジェクト側で Bing Grounding connection の構成が必要です (RBAC や connection 作成)。実行時に `BingConnectionNotFound` 等のエラーが出たら、chatmode を **`foundry-ops`** に切り替えて「Bing Grounding connection を確認したい」と escalate してください。`foundry-ops` は read-only コマンドで現状を診断し、必要な remediation 手順 (safety tag 付き) を返します。
-
 ---
 
 ## まとめ
@@ -333,11 +321,9 @@ Web 検索を使ってよい」と追記してください。
 |---|---|---|
 | 設計 | `af-architect` | 要件を pattern 選択 + anti-pattern flag + risk register に分解 (2-1 Step 1) |
 | 実装 | `af-implementer` | KB の canonical pattern を引いて最小 diff でコード生成 (2-1 Step 2 / 2-3 / 2-4 / 2-5) |
-| 検証 | `af-reviewer` | 13 anti-pattern を mechanically walk して severity 表で報告 (下記 TIP) |
-| 環境 | `foundry-ops` | Bing connection や RBAC など Foundry 環境の triage (2-5 TIP, Lab 3 以降で主役) |
 
 > [!TIP]
-> **Copilot の出力にバグが混入する可能性は依然あります** (例: 1.8.x で deprecated になった `async with FoundryChatClient(...)` を生成してしまうことが Cycle 7 で観測された)。完成したコードは Copilot Chat で chatmode を **`af-reviewer`** に切り替えて「scan-anti-patterns の観点で review してください」と依頼すると、13 種の anti-pattern を mechanically walk してくれます。指摘があれば再び **`af-implementer`** に戻して修正 — このループが Lab 2 の最終形です。
+> **Copilot の出力にバグが混入する可能性は依然あります** (例: 1.8.x で deprecated になった `async with FoundryChatClient(...)` を生成してしまうことが Cycle 7 で観測された)。Lab 2 の範囲では「2-1 の IMPORTANT callout」と「2-2 のよくあるエラー表」が主な防御線です。生成コードを実機で動かす前に必ず目視で照合してください。
 
 ---
 
