@@ -8,7 +8,7 @@
 - デプロイ後の動作確認 (`azd ai agent run` / `azd ai agent invoke` / Foundry ポータルの Playground)
 - ログとトレースを確認
 
-> この Lab は **[Lab 0](00-setup.md) で Foundry プロジェクト (North Central US) と gpt-4.1-mini モデルが作成済み、かつ自分に Foundry Project Manager ロールが付与済み** であることを前提にしています。未完了なら Lab 0 に戻ってください。
+> この Lab は **[Lab 0](00-setup.md) で Foundry プロジェクトと gpt-4.1-mini モデルが作成済み、かつ自分に Foundry Project Manager ロールが付与済み** であることを前提にしています。未完了なら Lab 0 に戻ってください。
 
 ## アーキテクチャ
 
@@ -84,7 +84,7 @@ azd ai agent init --deploy-mode code --runtime python_3_13 --entry-point main.py
 | 7 | Foundry Project | **Use existing Foundry project** (Lab 0 で作った project を選ぶ) |
 | 8 | Azure Tenant | あなたのテナント |
 | 9 | Azure subscription | あなたのサブスクリプション |
-| 10 | Location | **North Central US** (Lab 0 で作成した Foundry プロジェクトと同じリージョンを選ぶ) |
+| 10 | Location | Lab 0 で作成した Foundry プロジェクトと**同じリージョン**を選ぶ |
 | 11 | Model deployment | **`gpt-4.1-mini`** (Lab 0 でデプロイした同名の deployment) |
 | 12 | Model version | Lab 0 でデプロイしたバージョン |
 | 13 | Model SKU | **GlobalStandard** |
@@ -353,7 +353,7 @@ azd ai agent init --deploy-mode container --runtime python_3_13
 
 ## チェックリスト
 
-- [ ] Lab 0 の Foundry project (North Central US) + gpt-4.1-mini デプロイ + Foundry Project Manager 割り当て済み
+- [ ] Lab 0 の Foundry project + gpt-4.1-mini デプロイ + Foundry Project Manager 割り当て済み
 - [ ] `agent/` ディレクトリで `azd ai agent init --deploy-mode code --runtime python_3_13 --entry-point main.py` 成功
 - [ ] `agent/main.py` を MRC MCP + FoundryChatClient のロジックに書き換え済み
 - [ ] `azd up` 成功 (provision + deploy 一括)

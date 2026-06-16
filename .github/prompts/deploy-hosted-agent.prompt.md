@@ -25,8 +25,8 @@ tools: ["read", "search", "edit"]
 - ローカル エージェントが動作していること。`asyncio.run(main())` で実行できる状態。
 - `az login` および `azd auth login` が完了していること。
 - Foundry プロジェクトが既に存在していること (Lab 0 完了)。
-- `azd` 拡張 **`microsoft.foundry`** がインストール済み (`azd ext list` で確認)。なければ `azd ext install microsoft.foundry`。
-- リージョンは **North Central US** (Hosted Agent preview 制約)。
+- - `azd` 拡張 **`azure.ai.agents`** (0.1.39+) がインストール済み (`azd extension list` で確認)。なければ `azd extension install azure.ai.agents`。
+- リージョンは Lab 0 で Foundry プロジェクトを作成したリージョンに合わせる。
 - 詳細は [`solutions/lab3/`](../../solutions/lab3/) と [`docs/03-foundry-deploy.md`](../../docs/03-foundry-deploy.md) を参照。
 
 ## Inputs
@@ -38,7 +38,7 @@ tools: ["read", "search", "edit"]
 | **元のローカル コード パス** | はい | `solutions/lab2/src/agent.py` または `src/agent.py` |
 | **Hosted Agent 名** | 推測可 | 既定 `ms-updates-agent` |
 | **デプロイ ディレクトリ** | 推測可 | リポジトリ ルート直下に `agent/` を新規作成 |
-| **Foundry リージョン** | 既定 | **`northcentralus`** (固定。変更は拒否) |
+| **Foundry リージョン** | 既定 | Lab 0 作成時のリージョン (任意) |
 | **モデル** | 既定 | **`gpt-4.1-mini`** (`FOUNDRY_MODEL` の値) |
 
 ## Expected output
@@ -82,7 +82,7 @@ tools: ["read", "search", "edit"]
    azd ai agent init --deploy-mode code --source ./agent
    ```
 
-   - 対話プロンプトで Foundry プロジェクト、サブスクリプション、リージョン (**`northcentralus`** を選択) を聞かれる。
+   - 対話プロンプトで Foundry プロジェクト、サブスクリプション、リージョン (Lab 0 で選択したリージョンを指定) を聞かれる。
    - `agent.yaml` と `infra/` が生成される。
 7. **`agent.yaml` のチェック ポイント**:
    - `name`: ユーザー指定 (例: `ms-updates-agent`) と一致。
@@ -121,8 +121,8 @@ az rest --method POST \
 
 トラブル時:
 
-- `LocationNotAvailableForResourceType` → リージョンを **`northcentralus`** に再選択。`azd env set AZURE_LOCATION northcentralus` で上書き可能。
-- `azd ai agent init` に `--deploy-mode` がない → `azd ext upgrade microsoft.foundry`。
+- `LocationNotAvailableForResourceType` → リージョンが Hosted Agent をサポートしているか確認。`azd env set AZURE_LOCATION <region>` で上書き可能。
+- `azd ai agent init` に `--deploy-mode` がない → `azd extension upgrade azure.ai.agents (0.1.39+ 必須)`。
 - `403 Forbidden` (`azd up` 中) → 自分の Entra ID に **`Foundry Project Manager`** ロール (`eadc314b-6967-41eb-b9ec-2c8f0d3cd3a5`) を Foundry プロジェクトに割当 ([Lab 0](../../docs/00-setup.md) で実施)。
 - デプロイ後にエージェントが応答しない → Foundry ポータルの **Logs** タブでコンテナ ログを確認。多くは環境変数未注入 (`FOUNDRY_MODEL` 未設定) か、`DefaultAzureCredential` 失敗。
 - MCP ツールが呼ばれない → `default_options={"store": False}` の設定漏れ、`approval_mode` が `"always_require"` で待機中。
@@ -130,7 +130,7 @@ az rest --method POST \
 ## やってはいけないこと
 
 - ❌ `--deploy-mode container` を使う (このプロンプトは `code` 専用)。
-- ❌ `eastus` 等 North Central US 以外のリージョンを選ぶ (preview 制約)。
+- ❌ Foundry プロジェクトと異なるリージョンを選ぶ (Hosted Agent はプロジェクトと同リージョンで動作)。
 - ❌ `credential=AzureCliCredential()` のままデプロイ (コンテナ内に Azure CLI はない)。
 - ❌ `asyncio.run(main())` を `main.py` に残す (`ResponsesHostServer` が代替)。
 - ❌ `agent.yaml` を手動で全面書き換え (`azd` 生成内容を尊重し、最小修正にとどめる)。
