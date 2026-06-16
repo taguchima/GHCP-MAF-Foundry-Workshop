@@ -33,10 +33,10 @@
 
 | 項目 | 既定値 | 備考 |
 |---|---|---|
-| リージョン | **`northcentralus`** | Hosted Agent (preview) はこのリージョンのみ (2026 年初頭時点) |
+| リージョン | 任意 (`eastus`, `westus2` 等) | Hosted Agent は複数リージョンで利用可能 |
 | モデル | **`gpt-4.1-mini`** (deployment name も同じ) | Lab 0-4 でデプロイ |
 | SKU | `GlobalStandard` | 既定で十分 |
-| azd 拡張 | **`microsoft.foundry`** | 旧 `azure.ai.agents` は非推奨 |
+| azd 拡張 | **`azure.ai.agents`** (0.1.39+) | `azd extension install azure.ai.agents` |
 | RBAC ロール | **`Foundry Project Manager`** (`eadc314b-1a2d-4efa-be10-5d325db5065e`) | 自分の Entra ID に Lab 0 で割当 |
 
 > [!WARNING]
@@ -85,7 +85,7 @@ from azure.identity import DefaultAzureCredential  # 本番 / CI
 - `azd ai agent init` で `agent.yaml` と `infra/` が生成される。**生成された Bicep は基本いじらない**。
 
 > [!TIP]
-> `azd ai agent init` が `--deploy-mode` を受け付けない場合は `azd ext upgrade microsoft.foundry` で拡張を更新する。
+> `azd ai agent init` が `--deploy-mode` を受け付けない場合は `azd extension upgrade azure.ai.agents` で拡張を更新する (0.1.39 以上必須)。
 
 ## エージェント実装のショートカット
 
@@ -106,7 +106,6 @@ from azure.identity import DefaultAzureCredential  # 本番 / CI
 - ❌ [`kb-1.8.0/README.md`](../kb-1.8.0/README.md) の API パターンに反するコード (例: `agent.run_stream()`、`AzureAIClient`、`Message(text=...)`) を提案する。
 - ❌ `FOUNDRY_MODEL` 以外のモデル指定変数名 (`AZURE_OPENAI_MODEL` 等) を新規導入する。
 - ❌ `azd ai agent init --deploy-mode container` を既定として案内する (付録のみ)。
-- ❌ Hosted Agent を `eastus` 等 North Central US 以外で動かそうとする (preview 制限)。
 - ❌ `.env` を `python-dotenv` なしで読めると仮定する。
 
 ## 関連ドキュメント

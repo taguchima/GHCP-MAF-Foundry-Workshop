@@ -3,22 +3,21 @@
 Microsoft Foundry hosted agents are containerized agents deployed into a
 Foundry-managed runtime via the **official `azd ai agent` extension**.
 
-> [!IMPORTANT]
-> Hosted agents are currently limited to the **`northcentralus`** Azure region.
-> See: [`hosted-agent-region-availability.md`](./hosted-agent-region-availability.md)
+> [!NOTE]
+> Hosted agents are now available in multiple Azure regions. Choose the same region as your Foundry project.
 
 ## Required toolchain
 
 | Tool | Version | Install |
 |---|---|---|
-| `azd` | 1.21.3+ | `curl -fsSL https://aka.ms/install-azd.sh \| bash` |
-| `azure.ai.agents` extension | preview | `azd extension install azure.ai.agents` (auto on init) |
+| `azd` | 1.25.3+ | `curl -fsSL https://aka.ms/install-azd.sh \| bash` |
+| `azure.ai.agents` extension | **0.1.39+** | `azd extension install azure.ai.agents` (auto on init) |
 
 ## Canonical workflow
 
 ```bash
 # 1. Initialize azd project from official starter
-azd init -t Azure-Samples/azd-ai-starter-basic --location northcentralus
+azd init -t Azure-Samples/azd-ai-starter-basic --location <your-region>
 
 # 2. Add agent definition (manifest URL -> azure.yaml services: block)
 azd ai agent init -m <agent-manifest-url>

@@ -64,7 +64,7 @@ MCP エンドポイント：`https://www.microsoft.com/releasecommunications/mcp
 | 必須 | Azure サブスクリプション | | Foundry プロジェクト作成権限 + **Foundry Project Manager** |
 | 必須 | **GitHub アカウント** | | Lab 5 でこのリポジトリを fork して Actions を動かす |
 | Lab 3+ | Azure Developer CLI (azd) 1.25.3+ | `azd version` | |
-| Lab 3+ | `microsoft.foundry` 拡張 | `azd ext list` | |
+| Lab 3+ | `azure.ai.agents` 拡張 (0.1.39+) | `azd extension list` | |
 | Lab 4 | Docker（任意：Aspire Dashboard でローカルトレース確認） | `docker --version` | ★Stretch |
 
 > セットアップ手順は [Lab 0](00-setup.md) で詳細に案内します。
