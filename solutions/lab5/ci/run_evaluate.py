@@ -54,7 +54,8 @@ def main() -> None:
     script = os.path.join("src", "evaluate.py")
     with open(script, encoding="utf-8") as fp:
         code = fp.read()
-    exec(compile(code, script, "exec"), {"__name__": "__main__"})  # noqa: S102
+    # src/evaluate.py は __file__ から .env のパスを解決するため、exec の globals に渡す
+    exec(compile(code, script, "exec"), {"__name__": "__main__", "__file__": script})  # noqa: S102
 
 
 if __name__ == "__main__":
